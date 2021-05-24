@@ -11,9 +11,22 @@ Creation date: 1/29/21
 
 #pragma once
 
+#include <queue>
+#include <list>
+
 struct Vector2DInt {
 	int x;
 	int y;
+
+	constexpr bool operator==(Vector2DInt vec2) const noexcept
+	{
+		return x == vec2.x && y == vec2.y;
+	}
+
+	constexpr Vector2DInt operator+(Vector2DInt vec2) const noexcept
+	{
+		return Vector2DInt{ x + vec2.x, y + vec2.y };
+	}
 };
 
 
@@ -26,6 +39,11 @@ public:
 	void PrintPath();
 private:
     // Add your own private data
+	bool** board;
+	std::list<Vector2DInt> path;
+	void setBoard();
+	void SolveKnightsTourFunction(Vector2DInt point, std::list<std::list<Vector2DInt>> paths);
+	bool isAblePoint(Vector2DInt pos);
 };
 
 
