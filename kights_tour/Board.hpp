@@ -15,10 +15,12 @@ Creation date: 05/24/21
 template <int WIDTH, int HEIGHT>
 Board<WIDTH, HEIGHT>::Board()
 {
-	board = new bool* [WIDTH];
-	for(int i = 0; i < HEIGHT; ++i)
+	board = reinterpret_cast<bool**>(malloc(HEIGHT * sizeof(bool*) + WIDTH * HEIGHT));
+	for (int i = 0; i < HEIGHT; ++i)
 	{
-		board[i] = new bool[HEIGHT];
+		bool* memoryLocation = reinterpret_cast<bool*>(board + HEIGHT);
+		memoryLocation = memoryLocation + i * WIDTH;
+		board[i] = memoryLocation;
 	}
 	setBoard();
 }
@@ -26,13 +28,13 @@ Board<WIDTH, HEIGHT>::Board()
 template <int WIDTH, int HEIGHT>
 Board<WIDTH, HEIGHT>::~Board()
 {
-	delete[] board;
+	free(board);
 }
 
 template <int WIDTH, int HEIGHT>
 void Board<WIDTH, HEIGHT>::SolveKnightsTour(Vector2DInt start, Vector2DInt end)
 {
-	if(isAblePoint(end) == false)
+	if (isAblePoint(end) == false)
 	{
 		std::cout << "End position is not valid" << std::endl;
 		return;
@@ -52,31 +54,31 @@ void Board<WIDTH, HEIGHT>::SolveKnightsTour(Vector2DInt start, Vector2DInt end)
 template <int WIDTH, int HEIGHT>
 void Board<WIDTH, HEIGHT>::PrintPath()
 {
-	if(path.empty() == true)
+	if (path.empty() == true)
 	{
 		std::cout << "There are no valid paths" << std::endl;
 		return;
 	}
-	
+
 	for (Vector2DInt& iter : path)
 	{
-		if(iter == *std::prev(path.end(),1))
+		if (iter == *std::prev(path.end(), 1))
 		{
-			std::cout << "(" << iter.x << ", " << iter.y << ")" << std::endl;
+			std::cout << "(" << iter.x << ", " << iter.y << ")";
 			return;
 		}
-		std::cout << "(" << iter.x << ", " << iter.y << "), ";
+		std::cout << "(" << iter.x << ", " << iter.y << "),  ";
 	}
 }
 
 template<int WIDTH, int HEIGHT>
 void Board<WIDTH, HEIGHT>::setBoard()
 {
-	for (int i = 0; i < HEIGHT; ++i)
+	for (int j = 0; j < HEIGHT; ++j)
 	{
-		for (int j = 0; j < WIDTH; ++j)
+		for (int i = 0; i < WIDTH; ++i)
 		{
-			new(&board[i][j]) bool(false);
+			new(&board[j][i]) bool(false);
 		}
 	}
 }
@@ -84,27 +86,27 @@ void Board<WIDTH, HEIGHT>::setBoard()
 template <int WIDTH, int HEIGHT>
 void Board<WIDTH, HEIGHT>::SolveKnightsTourFunction(Vector2DInt point, std::list<std::list<Vector2DInt>> paths)
 {
-	if(board[point.y][point.x] == true)
+	if (board[point.y][point.x] == true)
 	{
 		return;
 	}
-	if(paths.empty() == true)
+	if (paths.empty() == true)
 	{
 		return;
 	}
-	
+
 	std::list<Vector2DInt> frontPath = paths.front();
 	paths.pop_front();
-    const Vector2DInt frontPoint = frontPath.front();
-	
-	std::list<Vector2DInt> CheckingList{ {frontPoint + Vector2DInt{2,1}} ,  {frontPoint + Vector2DInt{2,-1}}, {frontPoint + Vector2DInt{ -2,1 }}, {frontPoint + Vector2DInt{ -2,-1 }},
-		{frontPoint + Vector2DInt{ 1,2 }}, {frontPoint + Vector2DInt{ 1,-2 }}, {frontPoint + Vector2DInt{ -1,2 }}, {frontPoint + Vector2DInt{-1,-2 } }};
+	const Vector2DInt frontPoint = frontPath.front();
 
-	for(Vector2DInt& iter : CheckingList)
+	std::list<Vector2DInt> CheckingList{ {frontPoint + Vector2DInt{2,1}} ,  {frontPoint + Vector2DInt{2,-1}}, {frontPoint + Vector2DInt{ -2,1 }}, {frontPoint + Vector2DInt{ -2,-1 }},
+		{frontPoint + Vector2DInt{ 1,2 }}, {frontPoint + Vector2DInt{ 1,-2 }}, {frontPoint + Vector2DInt{ -1,2 }}, {frontPoint + Vector2DInt{-1,-2 } } };
+
+	for (Vector2DInt& iter : CheckingList)
 	{
-		if(isAblePoint(iter) == true)
+		if (isAblePoint(iter) == true)
 		{
-			if(board[iter.y][iter.x] == true)
+			if (board[iter.y][iter.x] == true)
 			{
 				continue;
 			}
@@ -115,7 +117,7 @@ void Board<WIDTH, HEIGHT>::SolveKnightsTourFunction(Vector2DInt point, std::list
 
 			board[iter.y][iter.x] = true;
 
-			if(iter == point)
+			if (iter == point)
 			{
 				path = paths.back();
 				return;
