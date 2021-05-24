@@ -11,7 +11,6 @@ Creation date: 1/29/21
 
 #pragma once
 
-#include <queue>
 #include <list>
 
 struct Vector2DInt {
@@ -38,7 +37,7 @@ public:
 	void SolveKnightsTour(Vector2DInt start, Vector2DInt end);
 	void PrintPath();
 private:
-    // Add your own private data
+    
 	bool** board;
 	std::list<Vector2DInt> path;
 	void setBoard();
